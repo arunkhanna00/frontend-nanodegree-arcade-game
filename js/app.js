@@ -1,4 +1,3 @@
-// TODO: Add a collision mechanism
 // TODO: Add a score count and other features
 
 
@@ -9,12 +8,13 @@ var Enemy = function() {
 
     // The image/sprite for our enemies, this uses
     // a helper we've provided to easily load images
+
     this.sprite = 'images/enemy-bug.png'; // Setup enemy image
     this.x = 0; // Start the x value of the enemy at 0
-    enemyRows = [60, 140, 230]; // Create an array of rows that the Enemy can start on
-    enemySpeeds = [200, 300, 400, 500, 600] // Create an array of speeds that can be randomly chosen
+    enemyRows = [60, 145, 230]; // Create an array of rows that the Enemy can start on
+    enemySpeeds = [200, 300, 400] // Create an array of speeds that can be randomly chosen
     this.y = enemyRows[Math.floor(Math.random()*3)]; // Setup a random lane
-    this.speed = enemySpeeds[Math.floor(Math.random()*5)]; // Setup a random speed
+    this.speed = enemySpeeds[Math.floor(Math.random()*3)]; // Setup a random speed
     this.addNewEnemy = true; // Setup a boolean variable corresponding to if an enemy has been added or not
 };
 
@@ -25,17 +25,26 @@ Enemy.prototype.update = function(dt) {
     // which will ensure the game runs at the same speed for
     // all computers.
     this.x += dt * this.speed; // Update x value accoding to speed and dt
-    if (Math.floor(this.x) >= 200 && this.addNewEnemy) {
+    if (Math.floor(this.x) >= 250 && this.addNewEnemy) {
         // Add a new enemy instance after an enmy crosses
-        // 200 pixels
+        // 250 pixels
         allEnemies.push(new Enemy());
         this.addNewEnemy = false;
     }
-    if (this.x > 1500) {
+    if (this.x > 1000) {
         // Remove an enemy after it has exited the screen
         // completely
         allEnemies.shift();
     }
+
+    if (player.y < this.y && player.y >= this.y - 20) {
+        if (this.x > player.x - 60 && this.x < player.x + 75) {
+            // When the player and the enemy collide, reset the
+            // player
+            player.collide();
+        }
+    }
+
 };
 
 // Draw the enemy on the screen, required method for game
@@ -48,11 +57,12 @@ Enemy.prototype.render = function() {
 // a handleInput() method.
 var Player = function() {
     this.sprite = 'images/char-boy.png'; // Setup image of Player
-    this.x = 200; // Setup initial x position of Player
-    this.y = 400; // Setup initial y position of Player
+    this.x = 200; // Setup initial x position of Player 200
+    this.y = 400; // Setup initial y position of Player 400
 };
 
-Player.prototype.update = function() {};
+Player.prototype.update = function() {
+};
 
 Player.prototype.handleInput = function(key) {
     if (key == 'up') {
@@ -61,7 +71,7 @@ Player.prototype.handleInput = function(key) {
         if (this.y <= 0) {
             // Reset player if up key would move player into water
             this.x = 200;
-            this.y = 400
+            this.y = 400;
         }
     }
     else if (key == 'down' && this.y <= 310) {
@@ -77,6 +87,11 @@ Player.prototype.handleInput = function(key) {
         this.x += 100;
     }
 };
+
+Player.prototype.collide = function() {
+    this.x = 200;
+    this.y = 400;
+}
 
 Player.prototype.render = function() {
     ctx.drawImage(Resources.get(this.sprite), this.x, this.y);
